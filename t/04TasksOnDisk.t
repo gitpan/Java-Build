@@ -3,7 +3,7 @@ use warnings;
 
 # signjar is not tested, since a keystore is required.  I do not have one.
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 use Java::Build::Tasks;
 
@@ -118,6 +118,17 @@ EOT
     is($jar_line, "Hello.java", "spaces in jar path");
     unlink 't/bad dir/space.jar';
 }
+
+#-------- Do we receive jar errors?
+
+eval q{
+    jar(
+        FILE_LIST => [ "beagle.java" ],
+        JAR_FILE  => 'wontmake.jar',
+        BASE_DIR  => "t/src",
+    );
+};
+like ($@, qr/no such file/i, "jar failure");
 
 #-------- Tests of filter_file
 

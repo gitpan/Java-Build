@@ -9,3 +9,18 @@ Revision history for Perl extension Java::Build.
           dumped directly onto standard out.  Now when compile returns false,
           the caller should call dump_errors on the compiling object to
           retrieve the errors.
+
+0.03  Tue Sep  2 08:05:33 CDT 2003
+        - Added Java::Build::GenericBuild to be the top level controller of
+          builds.
+        - Added a demo directory to the distrubution to show how builds might
+          be built.
+        - Changed Java::Build::JVM so that compile error are fatal.
+          All calls to its compile method should be eval'ed to trap errors.
+        - Changed jar and jarsigner Tasks so they only log when their
+          underlying call returns something.
+        - Changed jar and jarsigner so they call croak when their underlying
+          command fails.
+        - Corrected jar so it doesn't stay in the base directory of the jar
+          contents when it dies.  This is important for callers who are
+          trapping fatal errors with eval.

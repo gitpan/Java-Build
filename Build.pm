@@ -5,6 +5,8 @@ use warnings;
 
 use Carp;
 
+our $VERSION = '0.03';
+
 sub import {
     croak "Java::Build is a documentation only module.\n"
         . "Try Java::Build::JVM or Java::Build::Tasks\n";

@@ -36,7 +36,7 @@ if ($rewrite) {
 
 WriteMakefile(
     'NAME'		=> 'Java::Build',
-    'VERSION_FROM'	=> 'Build/JVM.pm', # finds $VERSION
+    'VERSION_FROM'	=> 'Build.pm', # finds $VERSION
     'PREREQ_PM'		=> { Inline       => 0.44,
                              Inline::Java => 0.41,
                              Carp         => 0,

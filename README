@@ -1,4 +1,4 @@
-Java/Build version 0.01
+Java/Build version 0.03
 =====================
 
 In my shop, we grew tired of using Ant for builds.  We wanted to script,
@@ -23,13 +23,14 @@ Java::Build::Tasks provides some useful helper functions.  None of them
 are essential, but they seem to make our scripts easier to write and more
 consistent.  The tasks currently include: jar, signjar, read_prop_file,
 update_prop_file, build_file_list, and what_needs_compiling (the later uses
-time stamps to decide which class files are missing or stale).
+time stamps to decide which class files are missing or stale).  There
+are more tasks, see perldoc for Java::Build::Tasks.
 
 INSTALLATION
 
 To install this module:
 
-You must include Sun's tools.jar in your classpath environment variable
+You MUST include Sun's tools.jar in your classpath environment variable
 to use Java::Build::JVM.  Do this before you start the following steps.
 
 Once that is in place, type:
@@ -38,6 +39,12 @@ Once that is in place, type:
    make
    make test
    make install
+
+EXAMPLE
+
+There is a demo subdirectory of the distribution directory.  Go there and
+look in the README for an example of how we use all the pieces of this
+package to allow flexibility and build code reuse.
 
 The Dreaded Inline Directories
 

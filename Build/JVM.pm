@@ -58,7 +58,7 @@ This warning is not a problem in Java 1.4.
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Carp;
 use Inline Java      => 'DATA',
@@ -190,8 +190,8 @@ Path names need to be either absolute, or relative the directory from which
 the script launched.  I have found no way to change the directory used by
 the JVM housing the compiler after it starts.
 
-Returns true if the compile worked wihtout errors and false otherwise.  If
-you receive a false, you should call dump_errors (see below).
+Returns true if the compile worked wihtout errors and dies setting
+the $@ to the javac error message otherwise.
 
 =cut
 
@@ -222,18 +222,12 @@ sub compile {
 #    }
     local $" = " ";  # In case caller has changed this.
     # Bad things happen if $" has newline(s), files are issued as commands.
-    return $self->{COMPILER}->compile($list);
-#    return 1;
+    my $success = $self->{COMPILER}->compile($list);
+    if ($success) { return $success;          }
+    else          { croak $self->_dump_errors(); }
 }
 
-=head1 dump_errors
-
-Call this after compile returns false, it will give you the error output
-from javac.
-
-=cut
-
-sub dump_errors {
+sub _dump_errors {
     my $self = shift;
     return $self->{COMPILER}->dumpMessages();
 }

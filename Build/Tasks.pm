@@ -121,7 +121,7 @@ our @EXPORT  = qw(
     make_jar_classpath purge_dirs
 );
 our $logger;
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 sub _my_croak {
     my $message = shift;
@@ -692,22 +692,22 @@ sub jar {
     local $" = " ";  # in case the caller has messed with it
     my $current_dir = cwd();
     chdir $base_dir if $base_dir;
+    my $jar_out;
+    _my_log("jar includes: @quoted_list", 0);
     if ($manifest) {
         _my_log("jarring $operation: $jar_file with $manifest", 40);
-        _my_log("jar includes: @quoted_list", 0);
 
-        my $jar_out =
+        $jar_out =
             `jar ${operation}fm '$jar_file' '$manifest' @quoted_list 2>&1`;
-        _my_log("jar out: $jar_out", 20);
     }
     else {
         _my_log("jarring $operation: $jar_file", 40);
-        _my_log("jar includes: @quoted_list",  0);
 
-        my $jar_out = `jar ${operation}f '$jar_file' @quoted_list 2>&1`;
-        _my_log("jar out: $jar_out", 20);
+        $jar_out = `jar ${operation}f '$jar_file' @quoted_list 2>&1`;
     }
     chdir $current_dir if $base_dir;
+    _my_croak($jar_out) if ($?);
+    _my_log("jar out: $jar_out", 20) if ($jar_out);
 }
 
 =head1 ear
@@ -809,6 +809,7 @@ sub signjar {
 
     _my_croak "Bad argument to signjar: ", keys %args if (keys %args);
 
+    my $com_out;
     if ($keystore) {
         _my_log("signing jar: $jar_file",     40);
         _my_log(
@@ -819,14 +820,23 @@ sub signjar {
 
         my $command = "jarsigner -keystore '$keystore' -storepass $storepass "
                     . "'$jar_file' $alias";
-        my $com_out = `$command 2>&1`;
-        _my_log("jarsigner out: $com_out", 20);
+        $com_out = `$command 2>&1`;
     }
     else {
         _my_log("signing jar: $jar_file alias: $alias", 40);
-        my $com_out = `jarsigner '$jar_file' $alias 2>&1`;
-        _my_log("jarsigner out: $com_out", 20);
+        $com_out = `jarsigner '$jar_file' $alias 2>&1`;
     }
+    _my_croak($com_out) if ($?);
+    _my_log("jarsigner out: $com_out", 20) if ($com_out);
 }
+
+# Edit history
+# 0.01 Initial release
+# 0.02 Changed jar and jarsigner so they only log command output when there
+#      is output from the command.  This reduces log clutter.
+# 0.02 Changed jar and jar signer so they die when their commands fail.
+# 0.02 Changed jar so that it goes back to the proper directory before
+#      calling _my_croak.  Not doing that caused problems for people who
+#      trap the fatal error.
 
 1;
