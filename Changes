@@ -1,0 +1,6 @@
+Revision history for Perl extension Java::Build.
+
+0.01  Fri Jul 25 08:16:01 2003
+	- original version; created by h2xs 1.22 with options
+		-AXn Java::Build
+
