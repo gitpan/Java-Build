@@ -3,9 +3,17 @@ use warnings;
 
 # signjar is not tested, since a keystore is required.  I do not have one.
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 use Java::Build::Tasks;
+
+eval {
+    my $tmp = build_file_list(
+        BASE_DIR         => 't/missing.src.dir',
+        INCLUDE_PATTERNS => [ qr/\.java$/ ],
+    );
+};
+like($@, qr/not a directory/, "build_file_list BASE_DIR does not exit");
 
 my $javas = build_file_list(
     BASE_DIR         => 't/src',

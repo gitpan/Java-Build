@@ -64,7 +64,9 @@ Java::Build::Tasks - collects common Java build tasks in one place: jar, jarsign
     );
 
     my $classpath = make_jar_classpath(
-        DIRS => [ 'path/to/some/set/of/jars', '/path/to/some/other/jars' ],
+        DIRS             => [ '/path/to/some/set/of/jars',
+                              '/path/to/some/other/jars' ],
+        INCLUDE_PATTERNS => [ qr/.jar$/, qr/.ZIP$/ ], # optional
     );
 
     purge_dirs($base_dir, qw(sub directories to remove));
@@ -121,13 +123,20 @@ our @EXPORT  = qw(
     make_jar_classpath purge_dirs
 );
 our $logger;
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 sub _my_croak {
     my $message = shift;
 
     $logger->log($message, 100) if $logger;
     croak "$message\n";
+}
+
+sub _my_carp {
+    my $message = shift;
+
+    $logger->log($message, 60) if $logger;
+    carp "$message\n";
 }
 
 sub _my_log {
@@ -228,9 +237,9 @@ sub read_prop_file {
     my $file = shift;
     my %config;
 
-    open CONFIG, "$file" or _my_croak("Couldn't read $file\n");
+    open CONFIG, "$file" or return;
 
-    _my_log("reading prop file: $file", 40);
+    _my_log("reading prop file: $file", 0);
 
     while (<CONFIG>) {
         next if (/^#/);
@@ -280,14 +289,12 @@ sub update_prop_file {
 
     _my_croak "Bad argument to update_prop_file: ", keys %args if (keys %args);
 
-    my $old_props;
-    eval q{$old_props    = read_prop_file($name)};
-    $old_props           = {} if $@;
+    my $old_props        = read_prop_file($name) || {};
     my %output_props     = ( %$old_props, %$new_props );
 
     open PROP_FILE, ">$name" or _my_croak "Couldn't write to $name $!\n";
 
-    _my_log("writing updated prop file: $name", 40);
+    _my_log("writing updated prop file: $name", 0);
 
     foreach my $key (keys %output_props) {
         print PROP_FILE "$key=$output_props{$key}\n";
@@ -465,6 +472,13 @@ sub build_file_list {
     my $quote_dollars    = delete $args{QUOTE_DOLLARS}  || 0;
 
     _my_croak "Bad argument to build_file_list: ", keys %args if (keys %args);
+    _my_croak "$base_dir is not a directory" unless (-d $base_dir);
+
+    if ($strip_base_dir and $base_dir =~ m!/$!) {
+        _my_carp("You asked for STRIP_BASE_DIR, your BASE_DIR ends in /");
+        _my_carp("I removed the trailing slash.");
+        $base_dir =~ s!/$!!;
+    }
 
     my @result_list;
 
@@ -517,7 +531,11 @@ sub _gen_filter {
 =head1 make_jar_classpath
 
 This function makes a valid class path of all the jars in the supplied
-list of directories.
+list of directories.  It has two parameters.  DIRS is the list of directories
+in which to look for jars, it is required.  INCLUDE_PATTERNS works
+like it does in build_file_list.  Give an anonymous array of regexes.
+By default this list is just [ qr/.jar$/ ].  You might need to set it
+to [ qr/.jar$/, qr/.ZIP$/ ].
 
 =cut
 
@@ -525,6 +543,7 @@ sub make_jar_classpath{
     my %args = @_;
     my $dirs = delete $args{DIRS}
         or _my_croak "You didn't supply a DIRS to make_jar_classpath";
+    my $include_patterns = delete $args{INCLUDE_PATTERNS} || [ qr/jar$/ ];
 
     _my_croak "Bad argument to make_jar_classpath: ", keys %args
         if (keys %args);
@@ -532,8 +551,8 @@ sub make_jar_classpath{
     my @path_pieces;
     foreach my $dir (@$dirs) {
         my $jars = build_file_list(
-            BASE_DIR => $dir,
-            INCLUDE_PATTERNS => [ qr/jar$/ ],
+            BASE_DIR         => $dir,
+            INCLUDE_PATTERNS => $include_patterns,
         );
         my $piece = join ":", @$jars;
         push @path_pieces, $piece;
@@ -838,5 +857,10 @@ sub signjar {
 # 0.02 Changed jar so that it goes back to the proper directory before
 #      calling _my_croak.  Not doing that caused problems for people who
 #      trap the fatal error.
+# 0.03 Make read_prop_file use a bare return if it can't read the file.
+#      This prevents annoying logging in update_prop_file.
+# 0.03 Made it fatal to supply a BASE_DIR parameter to build_file_list which
+#      is not an existing directory name.
+# 0.03 Added an optional INCLUDE_PATTERNS parameter to make_jar_classpath.
 
 1;

@@ -6,10 +6,11 @@ use Test::More tests => 11;
 use Java::Build::Tasks;
 
 #___________________ Read Props ________________
-eval q{
+#eval q{
     my $bad_config = read_prop_file('t/missing.config');
-};
-like ($@, qr/Couldn.t read/, "attempt to read missing prop file");
+    is($bad_config, undef, "attempt to read missing prop file");
+#};
+#like ($@, qr/Couldn.t read/, "attempt to read missing prop file");
 
 my $config = read_prop_file('t/sample.config');
 is($config->{basedir}, "/some/path", "read a config");

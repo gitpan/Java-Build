@@ -150,6 +150,7 @@ In all cases, the first item in TARGETS runs.  This is usually an init step.
 You might use it to obtains a build lock, open a log, etc.  If it should
 always be done at the outset, put it in your first target.  This include
 setting up signal handlers to clean-up if the program dies.
+
 =cut
 
 sub GO {
@@ -180,8 +181,12 @@ sub GO {
         $last_req        = $self->{TARGETS}[-1]; # ...to the end
     }
     else {  # caller requested targets, try to accomdate
-        _validate_targets(\%target_hash, @_);
-        my $success_hash = read_prop_file($self->{BUILD_SUCCESS});
+        $self->_validate_targets(\%target_hash, @_);
+        my $success_hash;
+        eval {
+            $success_hash = read_prop_file($self->{BUILD_SUCCESS});
+        };  # We don't care if the file exists.  If it's missing just assume
+            # no prior successes.
         $last_success    = $success_hash->{last_successful_target}
                         || "NONE";
 
@@ -208,12 +213,20 @@ sub GO {
                 # Sort the user requests with $earliest.
             my $reqs     = $self->_sort_requests(\%target_hash, @_, $earliest);
             $first       = $reqs->[0];
-            $last_req    = $reqs->[-1];
+            # If $earliest continuing starting point is last in the list
+            # and the caller did not request it, don't do it.
+            if ($reqs->[-1] eq $earliest and $reqs->[-1] ne $reqs->[-2]) {
+                $last_req = $reqs->[-2];
+            }
+            else { # $earliest was either requested, or it is not last,
+                   # so use whatever is last
+                $last_req    = $reqs->[-1];
+            }
         }
     }
 
-# Step zero always runs, but it can't run twice in a row, so bump
-# along if the above code says we need to start on step zero.
+    # Step zero always runs, but it can't run twice in a row, so bump
+    # along if the above code says we need to start on step zero.
     if ($target_hash{$first} == 0) { $target_hash{$first} =  1; }
 
     my $first_step = $targets_by_number{0}; # Get the name of step zero.
@@ -224,9 +237,9 @@ sub GO {
         my $this_step = $targets_by_number{$step_number};
         $self->$this_step();
         update_prop_file(
-                NAME      => $self->{BUILD_SUCCESS},
-                NEW_PROPS => { last_successful_target => $this_step }
-                );
+            NAME      => $self->{BUILD_SUCCESS},
+            NEW_PROPS => { last_successful_target => $this_step }
+        );
     }
 }
 
@@ -239,6 +252,7 @@ sub _sort_requests {
 }
 
 sub _validate_targets {
+    my $self       = shift;
     my $valid_hash = shift;
     my @bad_targets;
 
@@ -246,8 +260,8 @@ sub _validate_targets {
         push @bad_targets, $requested unless ($valid_hash->{$requested});
     }
     local $" = "',\n'";
-    my @choices = sort keys %$valid_hash;
-    die "Bad target(s):\n'@bad_targets'\nPlease choose from\n'@choices'\n"
+    die "Bad target(s):\n'@bad_targets'\n"
+      . "'Please choose from\n'@{$self->{TARGETS}}'\n"
         if (@bad_targets);
 }
 

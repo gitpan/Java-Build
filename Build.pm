@@ -5,7 +5,7 @@ use warnings;
 
 use Carp;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub import {
     croak "Java::Build is a documentation only module.\n"
@@ -56,7 +56,7 @@ Java::Build - a family of modules which you can use instead of Ant
   This family of modules helped me move away from Ant to a proper scripting
   language, namely Perl.  With it you can use a single JVM for compiling
   your java programs.  It provides many useful methods to help you build
-  lists of files, package them with jar etc.  Currently the modules are
+  lists of files, package them with jar, etc.  Currently the modules are
   unix centric.  If you make them work elsewhere, please send in patches.
 
 =head1 DESCRIPTION
@@ -88,16 +88,10 @@ All the other benefits of Perl (CPAN, regexes, etc.)
 
 =back
 
-=head2 EXPORT
-
-build_file_list
-what_needs_compiling
-jar
-signjar
-
 =head1 SEE ALSO
 
 You will need to install recent versions of Inline and Inline::Java.
+
 See Java::Build::JVM and Java::Build::Tasks for more details about their
 methods.
 

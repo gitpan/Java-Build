@@ -15,12 +15,14 @@ The rest of this file describes in some detail the files in this directory.
 
 build.config
 This file describes the subprojects in the project.  These descriptors
-are exhibited in a list of hash references in the order to work with
-Java::Build::GenericBuild (more on that later).  You can see by reading
-the file that there are two projects: common and screen (see below).
-The PROJECT_DIR is none other than this dir.  BUILD_SUCCESS can be any
-writable file, it will be overwritten with build status (namely the name
-of the last successful build step).
+are exhibited in a list of hash references in the order they should be built.
+You can see by reading the file that there are two projects: common and
+screen (see below).  The PROJECT_DIR is none other than this dir.
+BUILD_SUCCESS can be any writable file, it will be overwritten with build
+status (namely the name of the last successful build step).  If your
+project needs custom build steps, include the code here.  In that case it
+might be better to inherit from MyBuild so that overriding methods won't
+result in warnings.
 
 build.script
 This is the driver of the build (that means you run it to do a build).
@@ -36,7 +38,7 @@ This is directory where the common code lives.  The common code is under
 com/example/common.  It includes two layout managers and a special JLabel.
 Feel free to have a peek at the code.
 
-com/common.jar
+common/common.jar
 This file will only appear when you build successfully.  It contains
 all the class files under the common directory.
 
