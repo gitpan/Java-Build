@@ -1,5 +1,21 @@
 Revision history for Perl extension Java::Build.
 
+0.05  Mon Oct  6 12:48:04 CDT 2003
+        - Changed Tasks::jar so it accepts an undef manifest.
+        - Cleaned t/02javac.t to remove the old compile filed test
+        - Removed Java::Build::JVM::_dump_errors in favor of inlining its
+          action.
+        - Adjusted documentation and error message relating to tools.jar.
+          During installation, this jar must be in the classpath.  Otherwise
+          the tests will not work.
+        - Corrected bug in GenericBuild::GO which did not allow callers
+          to request the first step in the targets list.  (I will write
+          50 times on the chalkboard: 0 is false.)
+        - Renamed build.script to build.driver in the demo.  This is on my
+          list of politically correct name changes 'script' is pajorative.
+        - Corrected Tasks::copy_file so that directories with spaces are
+          properly quoted.
+
 0.04  Mon Sep 15 08:54:30 CDT 2003
         - Corrected small problems with the demo build so it will actually
           run on other people's machines.  (It used to depend on absolute

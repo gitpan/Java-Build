@@ -58,7 +58,7 @@ This warning is not a problem in Java 1.4.
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Carp;
 use Inline Java      => 'DATA',
@@ -223,13 +223,8 @@ sub compile {
     local $" = " ";  # In case caller has changed this.
     # Bad things happen if $" has newline(s), files are issued as commands.
     my $success = $self->{COMPILER}->compile($list);
-    if ($success) { return $success;          }
-    else          { croak $self->_dump_errors(); }
-}
-
-sub _dump_errors {
-    my $self = shift;
-    return $self->{COMPILER}->dumpMessages();
+    if ($success) { return $success;                         }
+    else          { croak $self->{COMPILER}->dumpMessages(); }
 }
 
 1;

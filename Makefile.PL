@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 
 my $with_complaint = <<EOJ;
 You need to put Sun's tools.jar into your classpath environment
-variable to use this module.
+variable while installing this distribution.
 
 EOJ
 die $with_complaint unless $ENV{CLASSPATH} =~ /tools.jar/;

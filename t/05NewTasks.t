@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 use Java::Build::Tasks;
 
@@ -85,6 +85,16 @@ eval q{
     copy_file('t/missingfile', 't/copiedfile');
 };
 like($@, qr/couldn.t cp/, "bad copy");
+
+copy_file("t/bad dir/Hello.java", "t/bad dir/manifest dir/Hello.java");
+my $copy_test_text = "copy with space in source and destination";
+if (-f 't/bad dir/manifest dir/Hello.java') {
+    pass($copy_test_text);
+    unlink 't/bad dir/manifest dir/Hello.java';
+}
+else {
+    fail($copy_test_text);
+}
 
 #___________________ Jar Class Path ________________
 

@@ -64,12 +64,4 @@ if ($classpath =~ /tools.jar/) {
         $compiler->compile([ "t/errsrc/Hi.java" ]);
     };
     like($@, qr/cannot read/, 'compile errors');
-#    my $success = $compiler->compile([ "t/errsrc/Hi.java" ]);
-#    if ($success) {
-#        fail("compile errors");
-#    }
-#    else {
-#        my $output = $compiler->dump_errors();
-#        like($output, qr/cannot read/, "compile errors");
-#    }
 }

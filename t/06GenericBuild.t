@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 BEGIN { use_ok('Java::Build::GenericBuild') }
 
@@ -50,6 +50,10 @@ print SUCCESS "last_successful_target=";
 $builder->{STEPS} = "";
 $builder->GO("step3");
 is($builder->{STEPS}, 'step1step2step3', 'scratch to step3');
+
+$builder->{STEPS} = "";
+$builder->GO( qw(step1 step4) );
+is($builder->{STEPS}, 'step1step2step3step4', 'explicit step1 thru step4');
 
 $builder->targets([qw( one two three four five ) ]);
 

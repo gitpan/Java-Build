@@ -123,7 +123,7 @@ our @EXPORT  = qw(
     make_jar_classpath purge_dirs
 );
 our $logger;
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 sub _my_croak {
     my $message = shift;
@@ -170,7 +170,10 @@ sub copy_file {
     if (ref($_[0]) =~ /ARRAY/) { @sources = @{$_[0]}; }
     else                       { @sources = @_;       }
 
-    @sources = map { s/ /\ /g; $_ } @sources;
+    @sources = map { "'$_'" } @sources;
+
+# This one appeared to fail:
+#    @sources = map { s/ /\ /g; $_ } @sources;
 
     my $cp_out = `cp @sources '$dest' 2>&1`;
     if ($?) {
@@ -713,7 +716,7 @@ sub jar {
     chdir $base_dir if $base_dir;
     my $jar_out;
     _my_log("jar includes: @quoted_list", 0);
-    if ($manifest) {
+    if (defined $manifest and $manifest) {
         _my_log("jarring $operation: $jar_file with $manifest", 40);
 
         $jar_out =
@@ -862,5 +865,6 @@ sub signjar {
 # 0.03 Made it fatal to supply a BASE_DIR parameter to build_file_list which
 #      is not an existing directory name.
 # 0.03 Added an optional INCLUDE_PATTERNS parameter to make_jar_classpath.
+# 0.04 Changed copy_file so it uses the same space quoting scheme as jar.
 
 1;

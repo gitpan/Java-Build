@@ -4,11 +4,12 @@ it shows you the pieces.  If your life is like mine, your projects are
 much more "interesting" than this one.
 
 To try out the application type:
+export CLASSPATH=$CLASSPATH:/path/suns/tools.jar
 perl Makefile.PL
 make
 make test
 cd demo
-./build.script
+./build.driver
 java -cp screen:common/common.jar com.example.screen.Main screen.txt char
 
 The rest of this file describes in some detail the files in this directory.
@@ -24,7 +25,7 @@ project needs custom build steps, include the code here.  In that case it
 might be better to inherit from MyBuild so that overriding methods won't
 result in warnings.
 
-build.script
+build.driver
 This is the driver of the build (that means you run it to do a build).
 It uses MyBuild (see below) and requires build.config (see above).
 This file exists to specify the order of the steps in a build which
@@ -50,19 +51,19 @@ free to use a better logging scheme.
 _Inline
 You don't need to worry about this directory.  It is here, because I used
 Inline::Java to gain access to a single JVM for compiling.  You can
-remove it at any time, Inline::Java will replace it when you run build.script
+remove it at any time, Inline::Java will replace it when you run build.driver
 again.  (If you supplied a directory for Inline to use during Makefile.PL,
 it will be used instead.)
 
 MyBuild.pm
 This is where the steps in the build are implemented.  The key is the set
 of subroutines whose names match the steps in the targets call in
-build.script.  It also makes sure that the required elements are in
+build.driver.  It also makes sure that the required elements are in
 the hash at construction time.  It could provide defaults, by including
 different coderefs in the @attrs array.  Instead, each coderef kills
-the script with a nasty message.
+the driver with a nasty message.
 
-The constructor has the three key steps of a custom build script:
+The constructor has the three key steps of a custom build driver:
     1. set the ATTRIBUTES key in the project hash
     2. call Java::Build::GenericBuild::process_attrs on the hash
        (it actually enforces the attributes, by calling the coderef

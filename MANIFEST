@@ -9,7 +9,7 @@ README
 demo/MyBuild.pm
 demo/README
 demo/build.config
-demo/build.script
+demo/build.driver
 demo/common/com/example/common/CharacterLayout.java
 demo/common/com/example/common/ExampleLabel.java
 demo/common/com/example/common/PixelLayout.java

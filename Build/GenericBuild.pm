@@ -4,6 +4,8 @@ use strict; use warnings;
 use Java::Build::Tasks qw(read_prop_file update_prop_file);
 use Carp;
 
+our $VERSION = "0.02";
+
 =head1 NAME
 
 Java::Build::GenericBuild - a high level driver to control Java builds
@@ -257,7 +259,12 @@ sub _validate_targets {
     my @bad_targets;
 
     foreach my $requested (@_) {
-        push @bad_targets, $requested unless ($valid_hash->{$requested});
+        if (not defined $valid_hash->{$requested}
+            or
+            $valid_hash->{$requested} < 0)
+        {
+            push @bad_targets, $requested;
+        }
     }
     local $" = "',\n'";
     die "Bad target(s):\n'@bad_targets'\n"

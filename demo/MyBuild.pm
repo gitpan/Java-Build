@@ -40,7 +40,7 @@ sub compile {
         eval { $compiler->compile($sources) };
         if ($@) {
             print LOG "compile failed:\n$@";
-            die "compile failed\n";
+            die "compile failed\n$@";
         }
         $compiler->append_to_classpath($base_dir);
     }
