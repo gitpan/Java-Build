@@ -121,6 +121,7 @@ our @EXPORT  = qw(
     make_jar_classpath purge_dirs
 );
 our $logger;
+our $VERSION = "0.01";
 
 sub _my_croak {
     my $message = shift;

@@ -4,3 +4,8 @@ Revision history for Perl extension Java::Build.
 	- original version; created by h2xs 1.22 with options
 		-AXn Java::Build
 
+0.02  Wed Aug 27 09:32:16 CDT 2003
+        - Modified Java compiling code so that errors from javac are not
+          dumped directly onto standard out.  Now when compile returns false,
+          the caller should call dump_errors on the compiling object to
+          retrieve the errors.

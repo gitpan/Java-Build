@@ -9,12 +9,12 @@ use strict;
 # None of other methods in Java::Build::JVM are tested.  Even the above
 # methods are only called once.  No error conditions are checked.
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 BEGIN {
     SKIP: {
         my $classpath = $ENV{CLASSPATH};
-        skip("Couldn't find tools.jar in CLASSPATH environment variable", 8)
+        skip("Couldn't find tools.jar in CLASSPATH environment variable", 9)
             unless ($classpath =~ /tools.jar/);
 
 # The test is not that slow, it takes less than a minute for the whole file.
@@ -59,4 +59,13 @@ if ($classpath =~ /tools.jar/) {
     $compiler->classpath("");
     $cp = $compiler->classpath();
     is($cp, "", "classpath reset");
+
+    my $success = $compiler->compile([ "t/errsrc/Hi.java" ]);
+    if ($success) {
+        fail("compile errors");
+    }
+    else {
+        my $output = $compiler->dump_errors();
+        like($output, qr/cannot read/, "compile errors");
+    }
 }

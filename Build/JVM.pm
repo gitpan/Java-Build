@@ -58,7 +58,7 @@ This warning is not a problem in Java 1.4.
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Carp;
 use Inline Java      => 'DATA',
@@ -190,6 +190,9 @@ Path names need to be either absolute, or relative the directory from which
 the script launched.  I have found no way to change the directory used by
 the JVM housing the compiler after it starts.
 
+Returns true if the compile worked wihtout errors and false otherwise.  If
+you receive a false, you should call dump_errors (see below).
+
 =cut
 
 sub compile {
@@ -219,8 +222,20 @@ sub compile {
 #    }
     local $" = " ";  # In case caller has changed this.
     # Bad things happen if $" has newline(s), files are issued as commands.
-    $self->{COMPILER}->compile($list);
-    return 1;
+    return $self->{COMPILER}->compile($list);
+#    return 1;
+}
+
+=head1 dump_errors
+
+Call this after compile returns false, it will give you the error output
+from javac.
+
+=cut
+
+sub dump_errors {
+    my $self = shift;
+    return $self->{COMPILER}->dumpMessages();
 }
 
 1;
@@ -251,18 +266,33 @@ __Java__
 // org.apache.tools.ant.taskdefs.compilers.Javac13.java
 // Thanks to the Ant project for providing this code as open source.
 //
-// I had tried a more direct approach, but it did not always compile
+// I tried a non-reflection approach, but it did not always compile
 // all of the needed inner classes.  In one test it produced only 166
 // of 168 files.  The missing ones were anonymous inner classes of
 // classes which had named inner classes.  The named inner classes were
 // there, but the anonymous ones were not.
 
+import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
+
+// In order to capture the error output from the compile, I must reset
+// System.out and System.err to someother PrintStream.  My PrintStream
+// is in the private class StringStream below.  I only need
+// ByteArrayOutputStream so that I have something to pass to
+// the PrintStream constructor.  It wants an OutputStream, the advantage
+// of ByteArrayOutputStream is that it never uses the disk, this saves
+// clutter and a proliferation of try blocks.
 
 public class PerlJavac {
     Object compiler;
     Method compile;
+    StringStream messages;
+
     public PerlJavac() {
+        messages = new StringStream();
+        System.setOut(messages);
+        System.setErr(messages);
         try {
             Class  c = Class.forName("com.sun.tools.javac.Main");
             compiler = c.newInstance();
@@ -286,5 +316,39 @@ public class PerlJavac {
             e.printStackTrace();
         }
         return false;
+    }
+    public String dumpMessages() {
+        return messages.dump();
+    }
+
+    private class StringStream extends PrintStream {
+        StringBuffer output;
+        public StringStream() {
+            super(new ByteArrayOutputStream());
+            output = new StringBuffer();
+        }
+        public void print(String s) {
+            output.append(s);
+        }
+        public void println(String s) {
+            output.append(s);
+            output.append("\n");
+        }
+        public void write(int b) {
+            output.append( (char)b );
+        }
+        public void write(byte[] buffer, int off, int len) {
+            char[] chars = new char[buffer.length];
+            for (int i = 0; i < buffer.length; i++) {
+                chars[i] = (char)buffer[i];
+            }
+            output.append(chars, off, len);
+        }
+        public String dump() {
+            String retval = output.toString();
+            output        = new StringBuffer();
+            return retval;
+        }
+
     }
 }

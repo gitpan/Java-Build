@@ -46,7 +46,7 @@ rename 't/compiled/HelloSaved.class', 't/compiled/Hello.class';
 my $bad_source = build_file_list(
     BASE_DIR         => 't/badsrc',
 );
-is(scalar @$bad_source, 2, "directories included");
+is(scalar @$bad_source, 2, "directories excluded");
 
 my $dollar_list = build_file_list(
     BASE_DIR         => 't/compiled',

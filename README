@@ -53,6 +53,7 @@ Do you mind small _Inline directories on your disk? [n]
 If you answer no, each directory from which scripts using Java::Build::JVM 
 are started will have a _Inline subdirectory created.  This leads to
 clutter, but only if you start such scripts from several places.
+(If users have .Inline directories in their home directory, Inline uses it.)
 
 If you answer yes, you will be asked:
 
@@ -67,7 +68,7 @@ If the directory you named does not exist, you will be asked:
 
 Should I create this directory? [y]
 
-Keep in mind that the directory must exist, or Inline will create revert
+Keep in mind that the directory must exist, or Inline will revert
 to its old habit of creating _Inline directories as needed.  So, letting
 Makefile.PL make the directory is good, unless you didn't have proper
 permissions and umask when you ran perl Makefile.PL.
